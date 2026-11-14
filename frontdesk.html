@@ -91,7 +91,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:30px}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 // 請將下方網址換成部署後的 Apps Script 網頁應用程式網址；所有裝置共用同一個網址。
-const API_URL = "https://script.google.com/macros/s/AKfycbwtmRSU5s948UBHoO3fkmFUZlmhU8e7bLua-4gJz7OmfoJDo-xLhVah7pcWeL7n5p_OGw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzWhZ_9Wi8acFohuSJo0dN3iUuKRJ7YsDImjxPe99cAymFHqUPP4MB1dZYXltONMMz6AA/exec";
 const $=id=>document.getElementById(id);
 let products=[], cart={}, category="全部", adminOn=false, adminKey=sessionStorage.getItem("mgAdminKey")||"", optionProduct=null;
 let knownOrderIds=null, soundEnabled=false, audioContext=null;
@@ -220,7 +220,7 @@ if($("cartJump")) $("cartJump").onclick=()=>{$("shopView").classList.remove("hid
 $("submitOrder").onclick=submit;
 function statusTag(s){return `<span class="pill">${esc(s)}</span>`}
 function orderHtml(o,admin=false){
- return `<div class="panel"><div class="row"><b>${esc(o.id)}</b><span>${statusTag(o.status)}</span></div><div class="muted">${new Date(o.createdAt).toLocaleString("zh-TW")}｜${esc(o.name)}｜${esc(o.phone)}</div>${(o.items||[]).map(i=>`<div class="orderline"><span>${esc(i.name)} × ${i.qty}${i.optionText?`<div class="muted">${esc(i.optionText)}</div>`:""}${i.itemNote?`<div class="muted">餐點備註：${esc(i.itemNote)}</div>`:""}</span><b>${money(i.price*i.qty)}</b></div>`).join("")}<div class="total">${money(o.total)}</div><div class="muted">${esc(o.pickup)} ${esc(o.pickupTime||"")}｜備註：${esc(o.note||"無")}</div>${admin?`<label>更新狀態</label><div class="row"><select id="st-${esc(o.id)}"><option ${o.status==="新訂單"?"selected":""}>新訂單</option><option ${o.status==="製作中"?"selected":""}>製作中</option><option ${o.status==="可取餐"?"selected":""}>可取餐</option><option ${o.status==="已完成"?"selected":""}>已完成</option><option ${o.status==="已取消"?"selected":""}>已取消</option><option ${o.status==="已取餐"?"selected":""}>已取餐</option></select><button data-update="${esc(o.id)}">更新</button></div>`:""}</div>`;
+ return `<div class="panel"><div class="row"><b>${esc(o.id)}</b><span>${statusTag(o.status)}</span></div><div class="muted">${new Date(o.createdAt).toLocaleString("zh-TW")}｜${esc(o.name)}｜${esc(o.phone)}</div>${(o.items||[]).map(i=>`<div class="orderline"><span>${esc(i.name)} × ${i.qty}${i.optionText?`<div class="muted">${esc(i.optionText)}</div>`:""}${i.itemNote?`<div class="muted">餐點備註：${esc(i.itemNote)}</div>`:""}</span><b>${money(i.price*i.qty)}</b></div>`).join("")}<div class="total">${money(o.total)}</div><div class="muted">${esc(o.pickup)} ${esc(o.pickupTime||"")}｜備註：${esc(o.note||"無")}</div>${admin?`<label>更新狀態</label><div class="row"><select id="st-${esc(o.id)}"><option ${o.status==="新訂單"?"selected":""}>新訂單</option><option ${o.status==="製作中"?"selected":""}>製作中</option><option ${o.status==="可取餐"?"selected":""}>可取餐</option><option ${o.status==="已完成"?"selected":""}>已完成</option><option ${o.status==="已取消"?"selected":""}>已取消</option></select><button data-update="${esc(o.id)}">更新</button></div>`:""}</div>`;
 }
 async function lookup(){
  let phone=normalizePhone($("lookupPhone").value);$("lookupPhone").value=phone;
