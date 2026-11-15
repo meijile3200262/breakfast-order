@@ -41,6 +41,11 @@ footer{text-align:center;color:#888;font-size:12px;padding:30px}
 #adminView{display:block!important}
 #cartJump{display:none!important}
 .alert-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+
+.status-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.status-actions button{padding:9px 12px;font-size:13px;border-radius:10px;background:#f0f0f0;color:#444;border:1px solid #e5e5e5}
+.status-actions button.selected{background:var(--ink);color:#fff;border-color:var(--ink)}
+.status-actions button:disabled{opacity:.55;cursor:wait}
 </style>
 </head>
 <body>
@@ -220,7 +225,7 @@ if($("cartJump")) $("cartJump").onclick=()=>{$("shopView").classList.remove("hid
 $("submitOrder").onclick=submit;
 function statusTag(s){return `<span class="pill">${esc(s)}</span>`}
 function orderHtml(o,admin=false){
- return `<div class="panel"><div class="row"><b>${esc(o.id)}</b><span>${statusTag(o.status)}</span></div><div class="muted">${new Date(o.createdAt).toLocaleString("zh-TW")}｜${esc(o.name)}｜${esc(o.phone)}</div>${(o.items||[]).map(i=>`<div class="orderline"><span>${esc(i.name)} × ${i.qty}${i.optionText?`<div class="muted">${esc(i.optionText)}</div>`:""}${i.itemNote?`<div class="muted">餐點備註：${esc(i.itemNote)}</div>`:""}</span><b>${money(i.price*i.qty)}</b></div>`).join("")}<div class="total">${money(o.total)}</div><div class="muted">${esc(o.pickup)} ${esc(o.pickupTime||"")}｜備註：${esc(o.note||"無")}</div>${admin?`<label>更新狀態</label><div class="row"><select id="st-${esc(o.id)}"><option ${o.status==="新訂單"?"selected":""}>新訂單</option><option ${o.status==="製作中"?"selected":""}>製作中</option><option ${o.status==="可取餐"?"selected":""}>可取餐</option><option ${o.status==="已完成"?"selected":""}>已完成</option><option ${o.status==="已取消"?"selected":""}>已取消</option></select><button data-update="${esc(o.id)}">更新</button></div>`:""}</div>`;
+ return `<div class="panel"><div class="row"><b>${esc(o.id)}</b><span>${statusTag(o.status)}</span></div><div class="muted">${new Date(o.createdAt).toLocaleString("zh-TW")}｜${esc(o.name)}｜${esc(o.phone)}</div>${(o.items||[]).map(i=>`<div class="orderline"><span>${esc(i.name)} × ${i.qty}${i.optionText?`<div class="muted">${esc(i.optionText)}</div>`:""}${i.itemNote?`<div class="muted">餐點備註：${esc(i.itemNote)}</div>`:""}</span><b>${money(i.price*i.qty)}</b></div>`).join("")}<div class="total">${money(o.total)}</div><div class="muted">${esc(o.pickup)} ${esc(o.pickupTime||"")}｜備註：${esc(o.note||"無")}</div>${admin?`<label>訂單狀態（點選按鈕即可更新）</label><div class="status-actions">${["新訂單","製作中","可取餐","已完成","已取消"].map(s=>`<button type="button" class="${o.status===s?"selected":""}" data-update="${esc(o.id)}" data-status="${s}" ${o.status===s?"disabled":""}>${s}</button>`).join("")}</div>`:""}</div>`;
 }
 async function lookup(){
  let phone=normalizePhone($("lookupPhone").value);$("lookupPhone").value=phone;
@@ -232,7 +237,7 @@ async function lookup(){
 $("lookupBtn").onclick=lookup;
 function renderAdminOrders(list){
  $("adminOrders").innerHTML=list.length?list.map(o=>orderHtml(o,true)).join(""):"目前沒有訂單";
- document.querySelectorAll("[data-update]").forEach(b=>b.onclick=async()=>{let id=b.dataset.update,s=$("st-"+id).value;try{await api("updateStatus",{id,status:s});toast((s==="已完成"||s==="已取消")?"訂單已移至歷史訂單":"訂單狀態已更新");loadAdmin()}catch(e){toast(e.message)}});
+ document.querySelectorAll("[data-update]").forEach(b=>b.onclick=async()=>{let id=b.dataset.update,s=b.dataset.status;if(!s||b.disabled)return;const original=b.textContent;b.disabled=true;b.textContent="更新中…";try{await api("updateStatus",{id,status:s});toast((s==="已完成"||s==="已取消")?"訂單已移至歷史訂單":"訂單狀態已更新");loadAdmin()}catch(e){b.disabled=false;b.textContent=original;toast(e.message)}});
 }
 async function loadAdmin(){
  try{let j=await api("orders");knownOrderIds=new Set((j.orders||[]).map(o=>String(o.id)));renderAdminOrders(j.orders||[]);let p=await api("products",{},"GET");products=p.products||[];renderAdminProducts();renderCats();renderProducts()}
